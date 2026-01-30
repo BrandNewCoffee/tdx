@@ -176,13 +176,19 @@ class WordleGUI:
         # 若任一已提交行包含該字母, 將 key 變為 used
         for ch, lbl in self.key_labels.items():
             used = False
-            # 只檢查已提交的列（0..current_row-1）
-            for r in range(0, max(0, self.current_row)):
+            # 檢查所有已提交的列：若該列已被評分（colors 不全為 'empty'）就視為已提交，
+            # 包含剛送出但尚未 self.current_row+1 的那一列。
+            for r in range(0, self.current_row + 1):
+                # 判斷此列是否為已提交（有任何一格被標記為非 empty）
+                row_submitted = any(self.colors[r][c] != 'empty' for c in range(5))
+                if not row_submitted:
+                    continue
                 for c in range(5):
                     if self.board[r][c] == ch:
                         used = True
                         break
-                if used: break
+                if used:
+                    break
             if used:
                 lbl.config(bg=KEY_USED_BG, fg='#fff', relief='sunken')
             else:
