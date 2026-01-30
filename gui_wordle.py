@@ -74,19 +74,23 @@ class WordleGUI:
 
         self.key_labels = {}
         letters = [chr(ord('A')+i) for i in range(26)]
-        # 6 columns
-        cols = 6
-        for i, ch in enumerate(letters):
-            r = i // cols
-            c = i % cols
-            if r == 0:
-                rowf = tk.Frame(keys_frame)
-                rowf.pack()
-            lbl = tk.Label(rowf, text=ch, width=3, height=1, bg=KEY_BG, relief='raised',
-                           font=('Helvetica', 10, 'bold'))
-            lbl.pack(side=tk.LEFT, padx=3, pady=3)
-            lbl.bind('<Button-1>', lambda e, ch=ch: self.on_letter_click(ch))
-            self.key_labels[ch] = lbl
+        # 使用矩形排列：4 欄
+        cols = 4
+        rows = (len(letters) + cols - 1) // cols
+        idx = 0
+        for r in range(rows):
+            rowf = tk.Frame(keys_frame)
+            rowf.pack()
+            for c in range(cols):
+                if idx >= len(letters):
+                    break
+                ch = letters[idx]
+                lbl = tk.Label(rowf, text=ch, width=3, height=1, bg=KEY_BG, relief='raised',
+                               font=('Helvetica', 10, 'bold'))
+                lbl.pack(side=tk.LEFT, padx=3, pady=3)
+                lbl.bind('<Button-1>', lambda e, ch=ch: self.on_letter_click(ch))
+                self.key_labels[ch] = lbl
+                idx += 1
 
         hint = tk.Label(side, text='被猜過的字母會變灰', font=('Helvetica', 9), fg='#555')
         hint.pack(pady=(8,0))
@@ -172,7 +176,8 @@ class WordleGUI:
         # 若任一已提交行包含該字母, 將 key 變為 used
         for ch, lbl in self.key_labels.items():
             used = False
-            for r in range(0, self.current_row+1):
+            # 只檢查已提交的列（0..current_row-1）
+            for r in range(0, max(0, self.current_row)):
                 for c in range(5):
                     if self.board[r][c] == ch:
                         used = True
