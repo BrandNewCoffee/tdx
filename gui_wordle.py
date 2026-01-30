@@ -86,12 +86,12 @@ class WordleGUI:
         options_frame.pack()
 
         self.option_labels = {}
-        # 每次遊戲隨機選擇 10 個選項單詞（從選項庫中）
+        # 每次遊戲隨機選擇 20 個選項單詞（從選項庫中）
         available_options = [w for w in OPTION_WORDS if w != self.answer]
-        self.current_options = random.sample(available_options, min(10, len(available_options)))
+        self.current_options = random.sample(available_options, min(20, len(available_options)))
 
-        # 2 欄排列
-        cols = 2
+        # 5 欄排列，適合 20 個選項（4 列 × 5 欄）
+        cols = 5
         idx = 0
         for i, word in enumerate(self.current_options):
             r = i // cols
@@ -99,9 +99,9 @@ class WordleGUI:
             if c == 0:
                 rowf = tk.Frame(options_frame)
                 rowf.pack()
-            lbl = tk.Label(rowf, text=word, width=8, height=1, bg=OPTION_BG, relief='raised',
-                           font=('Helvetica', 10, 'bold'), cursor='hand2')
-            lbl.pack(side=tk.LEFT, padx=3, pady=3)
+            lbl = tk.Label(rowf, text=word, width=7, height=1, bg=OPTION_BG, relief='raised',
+                           font=('Helvetica', 9, 'bold'), cursor='hand2')
+            lbl.pack(side=tk.LEFT, padx=2, pady=2)
             lbl.bind('<Button-1>', lambda e, w=word: self.on_word_click(w))
             self.option_labels[word] = lbl
 
@@ -133,7 +133,7 @@ class WordleGUI:
             self.remove_letter()
         else:
             char = event.char.upper()
-            if len(char) == 1 and 'A' <= char <= 'Z':
+            if len(char) == 1 and 'A'<= char <= 'Z':
                 self.add_letter(char)
 
     def add_letter(self, ch):
