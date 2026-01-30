@@ -16,7 +16,8 @@ class WordleGame:
     def __init__(self):
         # 預設答案列表
         self.word_list = [
-            'APPLE', 'BRAIN', 'CHAIR', 'DANCE', 'EAGLE',
+            'APPLE', 'BRA'
+            'IN', 'CHAIR', 'DANCE', 'EAGLE',
             'FLAME', 'GRACE', 'HEART', 'IMAGE', 'JUDGE',
             'KNIFE', 'LIGHT', 'MOUSE', 'NOBLE', 'OCEAN',
             'PAINT', 'QUEST', 'RIVER', 'STONE', 'TABLE',

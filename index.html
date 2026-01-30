@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wordle - 瀏覽器版</title>
+  <link rel="stylesheet" href="static/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="game-area">
+      <h1>WORDLE</h1>
+      <div id="board" class="board"></div>
+      <div class="controls">
+        <button id="btn-restart">重新開始</button>
+        <div id="status" class="status"></div>
+      </div>
+    </div>
+    <div class="side-area">
+      <h2>字母表</h2>
+      <div id="keys" class="keys"></div>
+      <div class="hint">被猜過的字母會變灰</div>
+    </div>
+  </div>
+  <script src="static/app.js"></script>
+</body>
+</html>
