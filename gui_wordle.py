@@ -110,6 +110,20 @@ class WordleGUI:
 
         hint = tk.Label(side, text='點擊單詞以提交', font=('Helvetica', 9), fg='#555')
         hint.pack(pady=(8, 0))
+        # 字母表（顯示 A~Z，已出現的字母會變灰）
+        alpha_frame = tk.Frame(side, pady=8)
+        alpha_frame.pack()
+        self.alpha_labels = {}
+        alpha_cols = 7
+        letters = [chr(ord('A') + i) for i in range(26)]
+        for i, ch in enumerate(letters):
+            if i % alpha_cols == 0:
+                rowf = tk.Frame(alpha_frame)
+                rowf.pack()
+            albl = tk.Label(rowf, text=ch, width=3, height=1, bg=OPTION_BG, relief='raised',
+                            font=('Helvetica', 9, 'bold'))
+            albl.pack(side=tk.LEFT, padx=2, pady=2)
+            self.alpha_labels[ch] = albl
 
         # 規則說明
         rules_frame = tk.Frame(side, pady=12)
@@ -211,11 +225,7 @@ class WordleGUI:
         # 追蹤使用過的單詞（立即變灰）
         self.used_words.add(word)
 
-        # 評分邏輯
-        answer_counts = {}
-        for ch in self.answer:
-            answer_counts[ch] = answer_counts.get(ch, 0) + 1
-
+        # 評分邏輯（綠色優先；黃色只要答案包含該字母即標示，不以次數限制）
         # 先設為灰
         for c in range(5):
             self.colors[self.current_row][c] = 'gray'
@@ -225,14 +235,14 @@ class WordleGUI:
             g = self.board[self.current_row][c]
             if g == self.answer[c]:
                 self.colors[self.current_row][c] = 'green'
-                answer_counts[g] -= 1
 
-        # 黃色
+        # 黃色：若此字母在答案任一位置出現（不受數量限制），且尚未標成綠色
+        answer_letters = set(self.answer)
         for c in range(5):
-            g = self.board[self.current_row][c]
-            if self.colors[self.current_row][c] == 'gray' and answer_counts.get(g, 0) > 0:
-                self.colors[self.current_row][c] = 'yellow'
-                answer_counts[g] -= 1
+            if self.colors[self.current_row][c] == 'gray':
+                g = self.board[self.current_row][c]
+                if g in answer_letters:
+                    self.colors[self.current_row][c] = 'yellow'
 
         # 標記該列
         self.render_row(self.current_row)
@@ -258,6 +268,26 @@ class WordleGUI:
         """更新右側選項按鈕的外觀"""
         for word, lbl in self.option_labels.items():
             if word in self.used_words:
+                lbl.config(bg=OPTION_USED_BG, fg='#fff', relief='sunken')
+            else:
+                lbl.config(bg=OPTION_BG, fg='#000', relief='raised')
+        # 同步更新字母表，若字母在任何已提交列中出現，該字母變灰
+        self.update_alphabet()
+
+    def update_alphabet(self):
+        letters_used = set()
+        # 檢查所有已評分的列（顏色不是 'empty'）
+        for r in range(0, self.current_row + 1):
+            row_submitted = any(self.colors[r][c] != 'empty' for c in range(5))
+            if not row_submitted:
+                continue
+            for c in range(5):
+                ch = self.board[r][c]
+                if ch:
+                    letters_used.add(ch.upper())
+
+        for ch, lbl in self.alpha_labels.items():
+            if ch in letters_used:
                 lbl.config(bg=OPTION_USED_BG, fg='#fff', relief='sunken')
             else:
                 lbl.config(bg=OPTION_BG, fg='#000', relief='raised')
