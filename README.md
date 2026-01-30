@@ -45,3 +45,5 @@ python run_server.py
 ## 備註
 - `gui_wordle.py` 使用標準庫 `tkinter`，不需額外安裝套件（但在某些最小化的 Python 安裝中可能未包含 GUI 支援）。
 - 如果您想要我幫忙整合成可執行檔或加入更多單字來源（例如讀檔），我可以協助。
+
+ccc
