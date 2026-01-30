@@ -1,0 +1,32 @@
+# Wordle - Python 版本
+
+這個專案包含兩種 Wordle 遊戲的實作：
+
+- `gui_wordle.py`：純 Python (tkinter) GUI 版本，建議在桌面環境直接執行。
+- `index.html` + `static/*` + `run_server.py`：瀏覽器版本與簡易本機伺服器（備援）。
+
+功能：
+
+- 隨機從內建字庫選出一個五字英文單字作為答案。
+- 6 排 × 5 格的猜字板，顏色提示：綠色（位置正確）、黃色（字母存在但位置錯誤）、灰色（不在答案中）。
+- 右側顯示 A~Z 字母格，初始為白色；若該字母已被猜過（出現在任何已提交的列），格子會變為灰色，方便確認剩餘字母。
+- 支援鍵盤輸入、Backspace 刪除與 Enter 提交。
+
+執行方式：
+
+在專案目錄下執行：
+
+```bash
+python gui_wordle.py
+```
+
+或啟動瀏覽器版本（如需）：
+
+```bash
+python run_server.py
+# 然後開啟瀏覽器到 http://localhost:8000/index.html
+```
+
+備註：
+- `gui_wordle.py` 使用標準庫 `tkinter`，不需額外安裝套件（但在某些最小化的 Python 安裝中可能未包含 GUI 支援）。
+- 如果您想要我幫忙整合成可執行檔或加入更多單字來源（例如讀檔），我可以協助。
