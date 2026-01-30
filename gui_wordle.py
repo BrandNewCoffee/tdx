@@ -11,13 +11,16 @@ ANSWER_WORDS = [
     'RIGHT', 'SMART', 'THINK', 'VALID', 'WHALE', 'YIELD', 'ANGEL', 'BLEND', 'CLIMB', 'DEPTH'
 ]
 
-# 選項庫（擴充的單詞庫，與答案庫錯開，用於右側選項）
+# 選項庫（擴充的單詞庫，與答案庫錯開，用於右側選項，確保涵蓋所有 26 個字母）
 OPTION_WORDS = [
     'ANGRY', 'BLAZE', 'CHARM', 'DEBUT', 'EVOKE', 'FLOOD', 'GRAFT', 'HELLO', 'IVORY', 'JOKER',
     'KNOWN', 'LOCAL', 'MAGIC', 'NICHE', 'OFFER', 'PLUMB', 'QUAKE', 'ROCKY', 'SEVEN', 'TOWER',
     'URBAN', 'VIRUS', 'WORLD', 'YACHT', 'ZEBRA', 'ADMIN', 'BONUS', 'CHEEK', 'DIRGE', 'EMPTY',
     'FAINT', 'GLOBE', 'HABIT', 'INPUT', 'JEANS', 'KARMA', 'LEGAL', 'MAPLE', 'NAILS', 'ORBIT',
-    'PLANK', 'QUEEN', 'RANCH', 'SAUCE', 'TOAST', 'ULTRA', 'VENOM', 'WRIST', 'YANKS', 'ZIPPY'
+    'PLANK', 'QUEEN', 'RANCH', 'SAUCE', 'TOAST', 'ULTRA', 'VENOM', 'WRIST', 'YANKS', 'ZIPPY',
+    'ASTER', 'BOXER', 'CRAFT', 'DYING', 'EASEL', 'FLYER', 'GRAZE', 'HAPPY', 'ICING', 'JAZZY',
+    'KIOSK', 'LEMON', 'MIXER', 'NOBLE', 'OZONE', 'POKER', 'QUIRK', 'RISKY', 'SUNNY', 'TOXIC',
+    'UNZIP', 'VIVID', 'WEARY', 'YACHT', 'ZEBRA'
 ]
 
 # 顏色設定
@@ -86,9 +89,9 @@ class WordleGUI:
         options_frame.pack()
 
         self.option_labels = {}
-        # 每次遊戲隨機選擇 20 個選項單詞（從選項庫中）
+        # 每次遊戲隨機選擇 20 個選項單詞（從選項庫中），確保包含所有 26 個字母
         available_options = [w for w in OPTION_WORDS if w != self.answer]
-        self.current_options = random.sample(available_options, min(20, len(available_options)))
+        self.current_options = self._select_options_with_all_letters(available_options, 20)
 
         # 5 欄排列，適合 20 個選項（4 列 × 5 欄）
         cols = 5
@@ -119,6 +122,37 @@ class WordleGUI:
 
         # 初始渲染
         self.render()
+
+    def _select_options_with_all_letters(self, available_options, num_options):
+        """選擇選項，確保包含所有 26 個字母"""
+        all_letters = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        selected = []
+        covered_letters = set()
+
+        # 首先挑選覆蓋缺少字母的單詞
+        remaining = list(available_options)
+        while remaining and len(covered_letters) < 26 and len(selected) < num_options:
+            # 找到能覆蓋最多未覆蓋字母的單詞
+            best_word = None
+            best_score = -1
+            for word in remaining:
+                word_letters = set(word)
+                new_letters = word_letters - covered_letters
+                if len(new_letters) > best_score:
+                    best_score = len(new_letters)
+                    best_word = word
+            
+            if best_word:
+                selected.append(best_word)
+                covered_letters.update(set(best_word))
+                remaining.remove(best_word)
+        
+        # 如果還需要更多選項，隨機添加剩餘單詞
+        if len(selected) < num_options and remaining:
+            additional = random.sample(remaining, min(num_options - len(selected), len(remaining)))
+            selected.extend(additional)
+        
+        return selected[:num_options]
 
     def on_key(self, event):
         if self.game_over:
@@ -260,9 +294,9 @@ class WordleGUI:
         self.used_words = set()
         self.status_lbl.config(text='')
 
-        # 重新生成選項
+        # 重新生成選項，確保包含所有 26 個字母
         available_options = [w for w in OPTION_WORDS if w != self.answer]
-        self.current_options = random.sample(available_options, min(10, len(available_options)))
+        self.current_options = self._select_options_with_all_letters(available_options, 20)
 
         self.render()
 
