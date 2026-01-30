@@ -37,10 +37,12 @@ class WordleGUI:
         self.board = [['' for _ in range(5)] for _ in range(6)]
         self.colors = [['empty' for _ in range(5)] for _ in range(6)]
         self.current_row = 0
+        self.current_col = 0  # 用於第 6 排手動輸入
         self.game_over = False
         self.used_words = set()  # 追蹤已使用過的選項單詞
 
         self.setup_ui()
+        self.master.bind('<Key>', self.on_key)
 
     def setup_ui(self):
         # 主區域
@@ -106,22 +108,74 @@ class WordleGUI:
         hint = tk.Label(side, text='點擊單詞以提交', font=('Helvetica', 9), fg='#555')
         hint.pack(pady=(8, 0))
 
+        # 規則說明
+        rules_frame = tk.Frame(side, pady=12)
+        rules_frame.pack()
+        rules_title = tk.Label(rules_frame, text='規則', font=('Helvetica', 11, 'bold'))
+        rules_title.pack()
+        rules_text = tk.Label(rules_frame, text='行1~5：點擊右側單詞\n行6：手動輸入字母\n綠色：位置正確\n黃色：字母存在\n灰色：不在答案中',
+                              font=('Helvetica', 8), fg='#555', justify=tk.LEFT)
+        rules_text.pack()
+
         # 初始渲染
         self.render()
+
+    def on_key(self, event):
+        if self.game_over:
+            return
+        # 只有第 6 排（index 5）才支援手動輸入
+        if self.current_row != 5:
+            return
+        key = event.keysym
+        if key == 'Return':
+            self.submit_manual_word()
+        elif key == 'BackSpace':
+            self.remove_letter()
+        else:
+            char = event.char.upper()
+            if len(char) == 1 and 'A' <= char <= 'Z':
+                self.add_letter(char)
+
+    def add_letter(self, ch):
+        if self.current_col < 5:
+            self.board[self.current_row][self.current_col] = ch
+            self.current_col += 1
+            self.render_row(self.current_row)
+
+    def remove_letter(self):
+        if self.current_col > 0:
+            self.current_col -= 1
+            self.board[self.current_row][self.current_col] = ''
+            self.render_row(self.current_row)
+
+    def submit_manual_word(self):
+        """提交手動輸入的單詞（第 6 排）"""
+        if self.current_col < 5:
+            self.status_lbl.config(text='請輸入完整五個字母')
+            return
+        guess = ''.join(self.board[self.current_row])
+        self.submit_word(guess)
 
     def on_word_click(self, word):
         if self.game_over or self.current_row >= 6:
             return
+        # 只有行 1~5 才支援點擊選擇（current_row 0~4）
+        if self.current_row >= 5:
+            return
         self.submit_word(word)
 
     def submit_word(self, word):
-        """提交選定的單詞"""
+        """提交選定的單詞（行 1~5 選擇或行 6 手動輸入）"""
         if self.current_row >= 6:
             return
 
         # 更新當前行為該單詞
+        word = word.upper()
         for c in range(5):
             self.board[self.current_row][c] = word[c]
+
+        # 追蹤使用過的單詞（立即變灰）
+        self.used_words.add(word)
 
         # 評分邏輯
         answer_counts = {}
@@ -150,8 +204,6 @@ class WordleGUI:
         self.render_row(self.current_row)
         # 更新右側選項（已被猜過的單詞變灰）
         self.update_options()
-        # 追蹤使用過的單詞
-        self.used_words.add(word)
 
         if word == self.answer:
             self.status_lbl.config(text=f'恭喜答對！答案：{self.answer}')
@@ -160,6 +212,7 @@ class WordleGUI:
             return
 
         self.current_row += 1
+        self.current_col = 0  # 重置列位置用於下一行
         if self.current_row >= 6:
             self.game_over = True
             self.status_lbl.config(text=f'遊戲結束，答案：{self.answer}')
@@ -202,6 +255,7 @@ class WordleGUI:
         self.board = [['' for _ in range(5)] for _ in range(6)]
         self.colors = [['empty' for _ in range(5)] for _ in range(6)]
         self.current_row = 0
+        self.current_col = 0
         self.game_over = False
         self.used_words = set()
         self.status_lbl.config(text='')
